@@ -1,8 +1,9 @@
-import { waitFor } from '@testing-library/react';
-
-import { render, screen } from "@testing-library/react";
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { render, screen, waitFor } from "@testing-library/react";
 import ModeButton from "../ModeButton";
 import userEvent from "@testing-library/user-event";
+
+expect.extend(toHaveNoViolations);
 
 describe('ModeButton', () => {
   it('should render - formal check', () => {
@@ -25,5 +26,12 @@ describe('ModeButton', () => {
     await waitFor(() => {
       expect(htmlElement).toHaveClass('dark');
     });
+  });
+
+  it('should meet formal accessibility requirements', async () => {
+    const { container } = render(<ModeButton />);
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });

@@ -24,7 +24,7 @@
     "noUncheckedSideEffectImports": true,
 
     /* Testing */
-    "types": ["vitest/importMeta", "vitest/globals", "@testing-library/jest-dom"]
+    "types": ["vitest/importMeta", "vitest/globals", "@testing-library/jest-dom", "jest-axe"]
   },
   "include": ["src"]
 }
