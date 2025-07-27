@@ -1,8 +1,10 @@
-import type { DarkModeProps } from "../../types";
 import RepoIcon from '../../assets/RepoIcon.svg?react';
 import ModeButton from "../ModeButton/ModeButton";
+import { useDarkMode } from "../../hooks/useDarkMode";
 
-export default function MainLayout({ darkMode, toggleDarkMode }: DarkModeProps) {
+export default function MainLayout() {
+  const { darkMode, toggleDarkMode } = useDarkMode();
+
   return (
     <div
       className="flex flex-col min-h-screen transition-colors duration-300 bg-white dark:bg-gradient-to-br dark:from-blue-900 dark:via-green-900 dark:to-gray-900 text-gray-900 dark:text-gray-100"

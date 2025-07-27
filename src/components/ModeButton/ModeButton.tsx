@@ -1,8 +1,10 @@
 import SunIcon from '../../assets/SunIcon.svg?react';
 import MoonIcon from '../../assets/MoonIcon.svg?react';
-import type { DarkModeProps } from '../../types';
+import { useDarkMode } from '../../hooks/useDarkMode';
 
-export default function ModeBar({ darkMode, toggleDarkMode }: DarkModeProps) {
+export default function ModeBar() {
+  const { darkMode, toggleDarkMode } = useDarkMode();
+
   return (
     <button
       onClick={toggleDarkMode}
