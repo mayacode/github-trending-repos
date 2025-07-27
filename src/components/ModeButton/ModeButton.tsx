@@ -2,7 +2,7 @@ import SunIcon from '../../assets/SunIcon.svg?react';
 import MoonIcon from '../../assets/MoonIcon.svg?react';
 import { useDarkMode } from '../../hooks/useDarkMode';
 
-export default function ModeBar() {
+export default function ModeButton() {
   const { darkMode, toggleDarkMode } = useDarkMode();
 
   return (
