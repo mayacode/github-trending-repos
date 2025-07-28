@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Repo, UseTrendingReposReturn } from "../types";
+import type { Repo, UseTrendingRepoReturn } from "../types";
 
 function getLastWeekRange() {
   const end = new Date();
@@ -11,8 +11,9 @@ function getLastWeekRange() {
   };
 }
 
-export function useTrendingRepos(): UseTrendingReposReturn {
+export function useTrendingRepos(): UseTrendingRepoReturn {
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
+  const [error, setError] = useState('');
   const [language, setLanguage] = useState('All');
   const [pending, setPending] = useState(false);
   const [perPage, setPerPage] = useState(20);
@@ -40,8 +41,9 @@ export function useTrendingRepos(): UseTrendingReposReturn {
           }
         });
         setAvailableLanguages(Array.from(languages).sort());
+        setError('');
       })
-      .catch(err => console.error(err))
+      .catch(err => setError(err.message))
       .finally(() => setPending(false));
   }
 
@@ -81,7 +83,9 @@ export function useTrendingRepos(): UseTrendingReposReturn {
     changePerPage,
     changeSearch,
     end,
+    error,
     language,
+    pending,
     perPage,
     repoList,
     search,

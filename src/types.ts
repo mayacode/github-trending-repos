@@ -18,13 +18,15 @@ export interface Repo {
   };
 }
 
-export interface UseTrendingReposReturn {
+export interface UseTrendingRepoReturn {
   availableLanguages: string[];
   changeLanguage: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   changePerPage: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   changeSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   end: string;
+  error: string;
   language: string;
+  pending: boolean;
   perPage: number;
   search: string;
   repoList: Repo[];

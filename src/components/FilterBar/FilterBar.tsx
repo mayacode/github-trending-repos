@@ -1,6 +1,6 @@
-import type { UseTrendingReposReturn } from "../../types";
+import type { UseTrendingRepoReturn } from "../../types";
 
-export type FilterBarProps = Pick<UseTrendingReposReturn, 'availableLanguages' | 'changeLanguage' | 'changePerPage' | 'changeSearch' | 'end' | 'language' | 'perPage' | 'search' | 'start'>;
+export type FilterBarProps = Omit<UseTrendingRepoReturn, 'error' | 'pending' | 'repoList'>;
 
 export default function FilterBar({ availableLanguages, changeLanguage, changePerPage, changeSearch, end, language, perPage, search, start }: FilterBarProps) {
   return (

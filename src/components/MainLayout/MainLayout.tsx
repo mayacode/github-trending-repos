@@ -1,6 +1,6 @@
 import RepoIcon from '../../assets/RepoIcon.svg?react';
 import ModeButton from "../ModeButton/ModeButton";
-import TrendingReposContainer from '../TrendingRepos/TrendingReposContainer';
+import TrendingReposContainer from '../TrendingRepos/TrendingRepoContainer';
 
 export default function MainLayout() {
   return (
