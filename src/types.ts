@@ -19,9 +19,12 @@ export interface Repo {
 }
 
 export interface UseTrendingReposReturn {
+  availableLanguages: string[];
+  changeLanguage: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   changePerPage: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   changeSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   end: string;
+  language: string;
   perPage: number;
   search: string;
   repoList: Repo[];

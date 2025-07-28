@@ -12,7 +12,8 @@ function getLastWeekRange() {
 }
 
 export function useTrendingRepos(): UseTrendingReposReturn {
-  // const [language, setLanguage] = useState('All');
+  const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
+  const [language, setLanguage] = useState('All');
   const [pending, setPending] = useState(false);
   const [perPage, setPerPage] = useState(20);
   const [repoList, setRepoList] = useState<Repo[]>([]);
@@ -25,12 +26,21 @@ export function useTrendingRepos(): UseTrendingReposReturn {
   function fetchRepos() {
     setPending(true);
 
-    let query = `created:${start}..${end} ${search}`;
+    let query = `created:${start}..${end} ${search} language:${language}`;
     const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc`;
 
     fetch(url)
       .then(res => res.json())
-      .then(data => setRepoList(data.items || []))
+      .then(data => {
+        setRepoList(data.items || []);
+        const languages = new Set<string>();
+        data.items?.forEach((repo: any) => {
+          if (repo.language) {
+            languages.add(repo.language);
+          }
+        });
+        setAvailableLanguages(Array.from(languages).sort());
+      })
       .catch(err => console.error(err))
       .finally(() => setPending(false));
   }
@@ -51,7 +61,7 @@ export function useTrendingRepos(): UseTrendingReposReturn {
       if (debounceTimeout) clearTimeout(debounceTimeout);
     };
     // eslint-disable-next-line
-  }, [perPage, search]);
+  }, [language, perPage, search]);
 
   function changePerPage(e: React.ChangeEvent<HTMLSelectElement>) {
     setPerPage(parseInt(e.target.value));
@@ -61,10 +71,17 @@ export function useTrendingRepos(): UseTrendingReposReturn {
     setSearch(e.target.value);
   }
 
+  function changeLanguage(e: React.ChangeEvent<HTMLSelectElement>) {
+    setLanguage(e.target.value);
+  }
+
   return {
+    availableLanguages,
+    changeLanguage,
     changePerPage,
     changeSearch,
     end,
+    language,
     perPage,
     repoList,
     search,
