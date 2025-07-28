@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Repo } from "../types";
+import type { Repo, UseTrendingReposReturn } from "../types";
 
 function getLastWeekRange() {
   const end = new Date();
@@ -11,15 +11,19 @@ function getLastWeekRange() {
   };
 }
 
-export function useTrendingRepos() {
-  const [language, setLanguage] = useState('All');
+export function useTrendingRepos(): UseTrendingReposReturn {
+  // const [language, setLanguage] = useState('All');
   const [pending, setPending] = useState(false);
+  const [perPage, setPerPage] = useState(20);
   const [repoList, setRepoList] = useState<Repo[]>([]);
   const { start, end } = getLastWeekRange();
 
   function fetchRepos() {
     setPending(true);
-    const url = `https://api.github.com/search/repositories?q=sort=stars&order=desc&per_page=20&created:${start}..${end}`;
+
+    let query = `&created:${start}..${end}&per_page=${perPage}`;
+    const url = `https://api.github.com/search/repositories?q=sort=stars&order=desc${query}`;
+
     fetch(url)
       .then(res => res.json())
       .then(data => setRepoList(data.items || []))
@@ -29,10 +33,16 @@ export function useTrendingRepos() {
 
   useEffect(() => {
     fetchRepos();
-  }, [language]);
+  }, [perPage]);
+
+  function changePerPage(e: React.ChangeEvent<HTMLSelectElement>) {
+    setPerPage(parseInt(e.target.value));
+  }
 
   return {
+    changePerPage,
     end,
+    perPage,
     repoList,
     start,
   }

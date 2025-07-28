@@ -17,3 +17,11 @@ export interface Repo {
     avatar_url: string;
   };
 }
+
+export interface UseTrendingReposReturn {
+  changePerPage: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  end: string;
+  perPage: number;
+  repoList: Repo[];
+  start: string;
+}
