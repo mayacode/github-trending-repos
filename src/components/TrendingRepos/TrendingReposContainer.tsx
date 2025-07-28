@@ -1,19 +1,18 @@
 import { useTrendingRepos } from "../../hooks/useTrendingRepos";
 import FilterBar from "../FilterBar/FilterBar";
+import TrendingRepoCard from "./TrendingRepoCard";
 
 export default function TrendingReposContainer() {
   const { end, repoList, start } = useTrendingRepos();
   console.log(end, repoList, start);
   return (
-    <div>
+    <div className="px-6">
       <FilterBar start={start} end={end} />
-      <div className="flex flex-col gap-4">
+      <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {repoList.map(repo => (
-          <div key={repo.id}>
-            <h3>{repo.name}</h3>
-          </div>
+          <TrendingRepoCard key={repo.id} repo={repo} />
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
