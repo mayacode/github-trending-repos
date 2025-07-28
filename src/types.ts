@@ -20,8 +20,10 @@ export interface Repo {
 
 export interface UseTrendingReposReturn {
   changePerPage: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  changeSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   end: string;
   perPage: number;
+  search: string;
   repoList: Repo[];
   start: string;
 }

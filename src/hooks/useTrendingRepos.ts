@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Repo, UseTrendingReposReturn } from "../types";
 
 function getLastWeekRange() {
@@ -16,13 +16,17 @@ export function useTrendingRepos(): UseTrendingReposReturn {
   const [pending, setPending] = useState(false);
   const [perPage, setPerPage] = useState(20);
   const [repoList, setRepoList] = useState<Repo[]>([]);
+  const [search, setSearch] = useState('');
   const { start, end } = getLastWeekRange();
+
+  let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+  const lastSearch = useRef(search);
 
   function fetchRepos() {
     setPending(true);
 
-    let query = `&created:${start}..${end}&per_page=${perPage}`;
-    const url = `https://api.github.com/search/repositories?q=sort=stars&order=desc${query}`;
+    let query = `created:${start}..${end} ${search}`;
+    const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc`;
 
     fetch(url)
       .then(res => res.json())
@@ -32,18 +36,38 @@ export function useTrendingRepos(): UseTrendingReposReturn {
   }
 
   useEffect(() => {
-    fetchRepos();
-  }, [perPage]);
+    if (lastSearch.current !== search) {
+      if (debounceTimeout) clearTimeout(debounceTimeout);
+
+      debounceTimeout = setTimeout(() => {
+        fetchRepos();
+      }, 700);
+      lastSearch.current = search;
+    } else {
+      fetchRepos();
+    }
+
+    return () => {
+      if (debounceTimeout) clearTimeout(debounceTimeout);
+    };
+    // eslint-disable-next-line
+  }, [perPage, search]);
 
   function changePerPage(e: React.ChangeEvent<HTMLSelectElement>) {
     setPerPage(parseInt(e.target.value));
   }
 
+  function changeSearch(e: React.ChangeEvent<HTMLInputElement>) {
+    setSearch(e.target.value);
+  }
+
   return {
     changePerPage,
+    changeSearch,
     end,
     perPage,
     repoList,
+    search,
     start,
   }
 }
