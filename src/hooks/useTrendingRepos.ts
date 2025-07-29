@@ -19,7 +19,7 @@ export function useTrendingRepos(): UseTrendingRepoReturn {
     setPending(true);
 
     let query = `created:${start}..${end} ${search} language:${language}`;
-    const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc`;
+    const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=descc&per_page=${perPage}`;
 
     fetch(url)
       .then(res => res.json())

@@ -2,12 +2,12 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { useTrendingRepos } from "../useTrendingRepos";
 import { repo } from "../../../tests/test_helper";
 
-global.fetch = vi.fn(() =>
+const mockFetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
     status: 200,
     json: () => Promise.resolve({ items: [repo] }),
-  } as unknown as Response),
+  } as unknown as Response)
 );
 
 describe('useTrendingRepos', () => {
@@ -24,6 +24,7 @@ describe('useTrendingRepos', () => {
     vi.useFakeTimers();
     const date = new Date(2025, 1, 1, 13);
     vi.setSystemTime(date);
+    global.fetch = mockFetch;
     
     const { result } = renderHook(() => useTrendingRepos());
     await waitFor(() => expect(result.current.repoList).toEqual([repo]));
@@ -51,27 +52,51 @@ describe('useTrendingRepos', () => {
   });
 
   it('should change the language', async () => {
+    global.fetch = mockFetch;
+
     const { result } = renderHook(() => useTrendingRepos());
 
+    await waitFor(() => expect(result.current.pending).toBe(false));
     expect(result.current.language).toEqual('All');
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenLastCalledWith(
+      expect.not.stringContaining(encodeURIComponent('language:JavaScript'))
+    );
 
     await act(async () => { 
       result.current.changeLanguage({ target: { value: 'JavaScript' } } as React.ChangeEvent<HTMLSelectElement>);
     });
 
+    await waitFor(() => expect(result.current.pending).toBe(false));
     expect(result.current.language).toEqual('JavaScript');
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch).toHaveBeenLastCalledWith(
+      expect.stringContaining(encodeURIComponent('language:JavaScript'))
+    );
   });
 
-  it('should change the per page', async () => {
+  it('should change amount results per page', async () => {
+    global.fetch = mockFetch;
+
     const { result } = renderHook(() => useTrendingRepos());
 
+    await waitFor(() => expect(result.current.pending).toBe(false));
     expect(result.current.perPage).toEqual(20);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenLastCalledWith(
+      expect.stringContaining('per_page=20')
+    );
 
     await act(async () => { 
       result.current.changePerPage({ target: { value: '15' } } as React.ChangeEvent<HTMLSelectElement>);
     });
 
+    await waitFor(() => expect(result.current.pending).toBe(false));
     expect(result.current.perPage).toEqual(15);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch).toHaveBeenLastCalledWith(
+      expect.stringContaining('per_page=15')
+    );
   });
 
   it('should debounce search changes', async () => {
