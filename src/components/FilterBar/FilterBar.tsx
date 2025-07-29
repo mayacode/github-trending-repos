@@ -8,6 +8,7 @@ export default function FilterBar({ availableLanguages, changeLanguage, changePe
       <label className="flex items-center gap-2">
         <span className="font-medium">Language:</span>
         <select
+          name="language"
           value={language}
           onChange={changeLanguage}
           className="rounded border border-blue-200 dark:border-green-700 px-2 py-1 bg-blue-50 dark:bg-green-950 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-green-400"
@@ -23,6 +24,7 @@ export default function FilterBar({ availableLanguages, changeLanguage, changePe
       <label className="flex items-center gap-2">
         <span className="font-medium">Show:</span>
         <select
+          name="perPage"
           value={perPage}
           onChange={changePerPage}
           className="rounded border border-blue-200 dark:border-green-700 px-2 py-1 bg-blue-50 dark:bg-green-950 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-green-400"

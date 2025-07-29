@@ -26,5 +26,5 @@
     /* Testing */
     "types": ["vitest/importMeta", "vitest/globals", "@testing-library/jest-dom", "jest-axe"]
   },
-  "include": ["src"]
+  "include": ["src", "tests/test_helper.ts"]
 }

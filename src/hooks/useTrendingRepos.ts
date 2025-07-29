@@ -1,15 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Repo, UseTrendingRepoReturn } from "../types";
-
-function getLastWeekRange() {
-  const end = new Date();
-  const start = new Date();
-  start.setDate(end.getDate() - 7);
-  return {
-    start: start.toISOString().split('T')[0],
-    end: end.toISOString().split('T')[0],
-  };
-}
+import { getLastWeekRange } from "../helpers/helperFunctions";
 
 export function useTrendingRepos(): UseTrendingRepoReturn {
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
@@ -43,7 +34,7 @@ export function useTrendingRepos(): UseTrendingRepoReturn {
         setAvailableLanguages(Array.from(languages).sort());
         setError('');
       })
-      .catch(err => setError(err.message))
+      .catch(err => setError(err.message || 'Something went wrong'))
       .finally(() => setPending(false));
   }
 
