@@ -1,6 +1,6 @@
-import { useTrendingRepos } from "../../hooks/useTrendingRepos";
-import FilterBar from "../FilterBar/FilterBar";
-import TrendingRepoList from "./TrendingRepoList";
+import { useTrendingRepos } from '@hooks/useTrendingRepos';
+import FilterBar from '@components/FilterBar/FilterBar';
+import TrendingRepoList from './TrendingRepoList';
 
 export default function TrendingReposContainer() {
   const { error, pending, repoList, ...filterBarProps } = useTrendingRepos();

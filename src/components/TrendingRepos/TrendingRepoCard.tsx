@@ -1,6 +1,6 @@
-import type { Repo } from '../../types';
-import RepoIcon from '../../assets/RepoIcon.svg?react';
-import StarIcon from '../../assets/StarIcon.svg?react';
+import type { Repo } from '@types';
+import RepoIcon from '@assets/RepoIcon.svg?react';
+import StarIcon from '@assets/StarIcon.svg?react';
 
 export default function TrendingRepoCard({ repo }: { repo: Repo }) {
   return (
@@ -20,14 +20,14 @@ export default function TrendingRepoCard({ repo }: { repo: Repo }) {
         <button
           onClick={() => {}}
           className="flex items-center gap-1 text-yellow-500 dark:text-yellow-300 font-medium hover:text-yellow-600 dark:hover:text-yellow-200 transition-colors cursor-pointer"
-          title={"Star this repository"}
+          title={'Star this repository'}
         >
           <StarIcon className="w-4 h-4 fill-current" />
           {repo.stargazers_count}
         </button>
-        </div>
-        <div className="text-sm text-gray-900 dark:text-gray-300 line-clamp-3 min-h-[48px]">
-          {repo.description}
+      </div>
+      <div className="text-sm text-gray-900 dark:text-gray-300 line-clamp-3 min-h-[48px]">
+        {repo.description}
       </div>
       <div className="flex flex-wrap items-center gap-3 text-xs text-gray-700 dark:text-gray-400 mt-2">
         <span>{repo.language}</span>

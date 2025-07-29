@@ -1,8 +1,21 @@
-import type { UseTrendingRepoReturn } from "../../types";
+import type { UseTrendingRepoReturn } from '@types';
 
-export type FilterBarProps = Omit<UseTrendingRepoReturn, 'error' | 'pending' | 'repoList'>;
+export type FilterBarProps = Omit<
+  UseTrendingRepoReturn,
+  'error' | 'pending' | 'repoList'
+>;
 
-export default function FilterBar({ availableLanguages, changeLanguage, changePerPage, changeSearch, end, language, perPage, search, start }: FilterBarProps) {
+export default function FilterBar({
+  availableLanguages,
+  changeLanguage,
+  changePerPage,
+  changeSearch,
+  end,
+  language,
+  perPage,
+  search,
+  start,
+}: FilterBarProps) {
   return (
     <section className="flex flex-wrap items-center gap-4 px-6 py-4 mb-6 bg-blue-100 dark:bg-gray-800 bg-opacity-80 dark:bg-opacity-80 shadow-md">
       <label className="flex items-center gap-2">

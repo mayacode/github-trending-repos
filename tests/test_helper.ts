@@ -1,4 +1,4 @@
-import type { UseTrendingRepoReturn } from "../src/types";
+import type { UseTrendingRepoReturn } from '@types';
 
 export const repo = {
   id: 1,
@@ -12,8 +12,8 @@ export const repo = {
   owner: {
     login: 'username',
     avatar_url: 'avatar_url',
-  }
-}
+  },
+};
 
 export const hookUseTrendingReposReturnValue = {
   availableLanguages: ['JavaScript', 'TypeScript', 'Python'],
@@ -27,5 +27,5 @@ export const hookUseTrendingReposReturnValue = {
   perPage: 10,
   repoList: [repo],
   search: '',
-  start: '1'
+  start: '1',
 } as UseTrendingRepoReturn;

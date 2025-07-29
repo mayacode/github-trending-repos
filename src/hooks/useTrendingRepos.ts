@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type { Repo, UseTrendingRepoReturn } from '../types';
-import { getLastWeekRange } from '../helpers/helperFunctions';
+import type { Repo, UseTrendingRepoReturn } from '@types';
+import { getLastWeekRange, getTrendingReposUrl } from '@helpers/helperFunctions';
 
 interface TrendingReposState {
   availableLanguages: string[];
@@ -94,9 +94,7 @@ export function useTrendingRepos(): UseTrendingRepoReturn {
       dispatch({ type: 'FETCH_PENDING', payload: true });
 
       try {
-        const queryLanguage = language === 'All' ? '' : `language:${language}`;
-        const query = `created:${start}..${end} ${debouncedSearch}${queryLanguage}`;
-        const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc&per_page=${perPage}`;
+        const url = getTrendingReposUrl(language, perPage, start, end, debouncedSearch);
 
         const response = await fetch(url);
         if (!response.ok) {

@@ -1,5 +1,5 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
-import { useDarkMode } from "../useDarkMode";
+import { act, renderHook, waitFor } from '@tests/test-utils';
+import { useDarkMode } from '../useDarkMode';
 
 describe('useDarkMode', () => {
   it('should switch the mode', async () => {

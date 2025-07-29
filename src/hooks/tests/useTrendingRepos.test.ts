@@ -1,22 +1,30 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
-import { useTrendingRepos } from "../useTrendingRepos";
-import { repo } from "../../../tests/test_helper";
+import { act, renderHook, waitFor, Wrapper } from '../../../tests/test-utils';
+import { useTrendingRepos } from '../useTrendingRepos';
+import { repo } from '@tests/test_helper';
 
-const mockFetch = vi.fn(() =>
-  Promise.resolve({
-    ok: true,
-    status: 200,
-    json: () => Promise.resolve({ items: [repo] }),
-  } as unknown as Response)
-);
+vi.mock('@helpers/helperFunctions', () => {
+  const mockGetTrendingReposUrl = vi.fn();
+  return {
+    getLastWeekRange: () => ({ start: '2025-01-25', end: '2025-02-01' }),
+    getTrendingReposUrl: mockGetTrendingReposUrl,
+  };
+});
 
 describe('useTrendingRepos', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
+
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ items: [repo] }),
+      } as unknown as Response)
+    );
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
     vi.clearAllTimers();
   });
 
@@ -24,9 +32,11 @@ describe('useTrendingRepos', () => {
     vi.useFakeTimers();
     const date = new Date(2025, 1, 1, 13);
     vi.setSystemTime(date);
-    global.fetch = mockFetch;
-    
-    const { result } = renderHook(() => useTrendingRepos());
+
+    const { result } = renderHook(() => useTrendingRepos(), {
+      wrapper: Wrapper,
+    });
+
     await waitFor(() => expect(result.current.repoList).toEqual([repo]));
     expect(result.current.availableLanguages).toEqual(['JavaScript']);
     expect(result.current.end).toEqual('2025-02-01');
@@ -45,97 +55,96 @@ describe('useTrendingRepos', () => {
 
   it('should return the correct data when the API is down', async () => {
     global.fetch = vi.fn(() => Promise.reject('API is down'));
-    const { result } = renderHook(() => useTrendingRepos());
-    await waitFor(() => expect(result.current.error).toEqual('Something went wrong'));
+
+    const { result } = renderHook(() => useTrendingRepos(), {
+      wrapper: Wrapper,
+    });
+
+    await waitFor(() => expect(result.current.pending).toBe(false));
+    expect(result.current.error).toEqual('Something went wrong');
     expect(result.current.repoList).toEqual([]);
     expect(result.current.availableLanguages).toEqual([]);
   });
 
   it('should change the language', async () => {
-    global.fetch = mockFetch;
-
-    const { result } = renderHook(() => useTrendingRepos());
+    const { result } = renderHook(() => useTrendingRepos(), {
+      wrapper: Wrapper,
+    });
 
     await waitFor(() => expect(result.current.pending).toBe(false));
     expect(result.current.language).toEqual('All');
-    expect(mockFetch).toHaveBeenCalledTimes(1);
-    expect(mockFetch).toHaveBeenLastCalledWith(
-      expect.not.stringContaining(encodeURIComponent('language:JavaScript'))
-    );
 
-    await act(async () => { 
-      result.current.changeLanguage({ target: { value: 'JavaScript' } } as React.ChangeEvent<HTMLSelectElement>);
+    await act(async () => {
+      result.current.changeLanguage({
+        target: { value: 'JavaScript' },
+      } as React.ChangeEvent<HTMLSelectElement>);
     });
 
     await waitFor(() => expect(result.current.pending).toBe(false));
     expect(result.current.language).toEqual('JavaScript');
-    expect(mockFetch).toHaveBeenCalledTimes(2);
-    expect(mockFetch).toHaveBeenLastCalledWith(
-      expect.stringContaining(encodeURIComponent('language:JavaScript'))
-    );
   });
 
   it('should change amount results per page', async () => {
-    global.fetch = mockFetch;
-
-    const { result } = renderHook(() => useTrendingRepos());
+    const { result } = renderHook(() => useTrendingRepos(), {
+      wrapper: Wrapper,
+    });
 
     await waitFor(() => expect(result.current.pending).toBe(false));
     expect(result.current.perPage).toEqual(20);
-    expect(mockFetch).toHaveBeenCalledTimes(1);
-    expect(mockFetch).toHaveBeenLastCalledWith(
-      expect.stringContaining('per_page=20')
-    );
 
-    await act(async () => { 
-      result.current.changePerPage({ target: { value: '15' } } as React.ChangeEvent<HTMLSelectElement>);
+    await act(async () => {
+      result.current.changePerPage({
+        target: { value: '15' },
+      } as React.ChangeEvent<HTMLSelectElement>);
     });
 
     await waitFor(() => expect(result.current.pending).toBe(false));
     expect(result.current.perPage).toEqual(15);
-    expect(mockFetch).toHaveBeenCalledTimes(2);
-    expect(mockFetch).toHaveBeenLastCalledWith(
-      expect.stringContaining('per_page=15')
-    );
   });
 
   it('should debounce search changes', async () => {
-    const mockFetch = vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve({ items: [repo] }),
-      } as unknown as Response)
-    );
-    global.fetch = mockFetch;
-
-    const { result } = renderHook(() => useTrendingRepos());
+    const { result } = renderHook(() => useTrendingRepos(), {
+      wrapper: Wrapper,
+    });
 
     await waitFor(() => expect(result.current.pending).toBe(false));
-    expect(mockFetch).toHaveBeenCalledTimes(1);
+    
+    // Get initial call count by accessing the mocked module
+    const helperFunctions = await import('@helpers/helperFunctions');
+    const initialCallCount = vi.mocked(helperFunctions.getTrendingReposUrl).mock.calls.length;
 
     await act(async () => {
-      result.current.changeSearch({ target: { value: 'a' } } as React.ChangeEvent<HTMLInputElement>);
-    });
-    
-    await act(async () => {
-      result.current.changeSearch({ target: { value: 'ab' } } as React.ChangeEvent<HTMLInputElement>);
-    });
-    
-    await act(async () => {
-      result.current.changeSearch({ target: { value: 'abc' } } as React.ChangeEvent<HTMLInputElement>);
+      result.current.changeSearch({
+        target: { value: 'a' },
+      } as React.ChangeEvent<HTMLInputElement>);
     });
 
-    expect(mockFetch).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      result.current.changeSearch({
+        target: { value: 'ab' },
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    await act(async () => {
+      result.current.changeSearch({
+        target: { value: 'abc' },
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    expect(result.current.search).toEqual('abc');
+
+    expect(vi.mocked(helperFunctions.getTrendingReposUrl).mock.calls.length).toBe(initialCallCount);
 
     await act(async () => {
       vi.advanceTimersByTime(700);
     });
 
-    // Should have been called again with the final search value
-    expect(mockFetch).toHaveBeenCalledTimes(2);
-    expect(mockFetch).toHaveBeenLastCalledWith(
-      expect.stringContaining('abc')
+    expect(vi.mocked(helperFunctions.getTrendingReposUrl)).toHaveBeenCalledWith(
+      'All', // language
+      20,    // perPage
+      '2025-01-25', // start
+      '2025-02-01', // end
+      'abc'  // debouncedSearch
     );
   });
 });

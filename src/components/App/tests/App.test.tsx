@@ -1,21 +1,25 @@
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@tests/test-utils';
 import App from '../App';
 
 expect.extend(toHaveNoViolations);
 
-vi.mock('../../TrendingRepos/TrendingRepoContainer', () => ({ 
+vi.mock('../../TrendingRepos/TrendingRepoContainer', () => ({
   default: () => {
-    return <div>TrendingRepoContainer</div>
-  }, 
-})) 
+    return <div>TrendingRepoContainer</div>;
+  },
+}));
 
 describe('App', () => {
   it('should render the App component', () => {
     render(<App />);
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('GitHub Trending Repositories (Last Week)');
-    expect(screen.getByRole('button')).toHaveAccessibleName('Switch to dark mode');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'GitHub Trending Repositories (Last Week)'
+    );
+    expect(screen.getByRole('button')).toHaveAccessibleName(
+      'Switch to dark mode'
+    );
     expect(screen.getByText('TrendingRepoContainer')).toBeInTheDocument();
   });
 
