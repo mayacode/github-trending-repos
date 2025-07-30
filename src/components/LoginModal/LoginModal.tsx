@@ -1,19 +1,17 @@
 import { useEffect } from 'react';
 import LoginStarIcon from '@assets/LoginStarIcon.svg?react';
 import GitHubIcon from '@assets/GitHubIcon.svg?react';
-// import { startAuth } from '../services/githubAuth';
+import { startAuth } from '@services/githubAuth';
+import { useStarredRepos } from '@hooks/useTrendingRepos';
 
 interface LoginModalProps {
   modalIsOpen: boolean;
   onClose: () => void;
-  repoName?: string;
 }
 
-export default function LoginModal({
-  modalIsOpen,
-  onClose,
-  repoName,
-}: LoginModalProps) {
+export default function LoginModal({ modalIsOpen, onClose }: LoginModalProps) {
+  const { selectedRepo } = useStarredRepos({ openLoginModal: () => {} });
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -32,7 +30,9 @@ export default function LoginModal({
     };
   }, [modalIsOpen, onClose]);
 
-  if (!modalIsOpen) return null;
+  if (!modalIsOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -58,11 +58,11 @@ export default function LoginModal({
           <p className="text-gray-700 dark:text-gray-300 mb-3">
             To star repositories, you need to be logged into GitHub.
           </p>
-          {repoName && (
+          {selectedRepo && (
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
               Repository:{' '}
               <span className="font-mono text-blue-600 dark:text-blue-400">
-                {repoName}
+                {selectedRepo}
               </span>
             </p>
           )}
@@ -71,7 +71,7 @@ export default function LoginModal({
         <div className="flex flex-col gap-3">
           <button
             onClick={async () => {
-              // await startAuth(repoName);
+              await startAuth(selectedRepo);
               onClose();
             }}
             className="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 text-white dark:text-gray-900 font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"

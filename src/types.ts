@@ -51,3 +51,11 @@ export interface LoginModalReturn {
   openLoginModal: () => void;
   closeLoginModal: () => void;
 }
+
+export interface UseStarredReposReturn {
+  handleStarClick: (repo: Repo, modalIsOpen: boolean) => Promise<void>;
+  starredRepos: Set<string>;
+  selectedRepo: string;
+  loadingStars: Set<string>;
+  isPending: boolean;
+}
