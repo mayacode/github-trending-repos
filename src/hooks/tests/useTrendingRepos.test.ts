@@ -1,5 +1,19 @@
-import { act, renderHook, waitFor, Wrapper } from '../../../tests/test-utils';
-import { useTrendingRepos } from '../useTrendingRepos';
+import {
+  act,
+  renderHook,
+  waitFor,
+  Wrapper,
+  withConsoleErrorSpy,
+  getMockedServices,
+  renderUseStarredRepos,
+  createTestRepo,
+  mockUnauthenticatedUser,
+} from '../../../tests/test-utils';
+import {
+  useTrendingRepos,
+  useAuthMessage,
+  useStarredRepos,
+} from '../useTrendingRepos';
 import { repo } from '@tests/test_helper';
 
 vi.mock('@helpers/helperFunctions', () => {
@@ -9,6 +23,18 @@ vi.mock('@helpers/helperFunctions', () => {
     getTrendingReposUrl: mockGetTrendingReposUrl,
   };
 });
+
+vi.mock('@services/githubAuth', () => ({
+  getAuthState: vi.fn(),
+  getStarredRepositories: vi.fn(),
+  starRepository: vi.fn(),
+  unstarRepository: vi.fn(),
+}));
+
+vi.mock('@/helpers/githubAuthHelpers', () => ({
+  getSelectedRepo: vi.fn(),
+  setSelectedRepo: vi.fn(),
+}));
 
 describe('useTrendingRepos', () => {
   beforeEach(() => {
@@ -108,10 +134,11 @@ describe('useTrendingRepos', () => {
     });
 
     await waitFor(() => expect(result.current.pending).toBe(false));
-    
+
     // Get initial call count by accessing the mocked module
     const helperFunctions = await import('@helpers/helperFunctions');
-    const initialCallCount = vi.mocked(helperFunctions.getTrendingReposUrl).mock.calls.length;
+    const initialCallCount = vi.mocked(helperFunctions.getTrendingReposUrl).mock
+      .calls.length;
 
     await act(async () => {
       result.current.changeSearch({
@@ -133,7 +160,9 @@ describe('useTrendingRepos', () => {
 
     expect(result.current.search).toEqual('abc');
 
-    expect(vi.mocked(helperFunctions.getTrendingReposUrl).mock.calls.length).toBe(initialCallCount);
+    expect(
+      vi.mocked(helperFunctions.getTrendingReposUrl).mock.calls.length
+    ).toBe(initialCallCount);
 
     await act(async () => {
       vi.advanceTimersByTime(700);
@@ -141,10 +170,265 @@ describe('useTrendingRepos', () => {
 
     expect(vi.mocked(helperFunctions.getTrendingReposUrl)).toHaveBeenCalledWith(
       'All', // language
-      20,    // perPage
+      20, // perPage
       '2025-01-25', // start
       '2025-02-01', // end
-      'abc'  // debouncedSearch
+      'abc' // debouncedSearch
     );
+  });
+});
+
+describe('useAuthMessage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should return null when no auth parameters are present', () => {
+    // Mock window.location with no parameters
+    Object.defineProperty(window, 'location', {
+      value: {
+        href: 'http://localhost:3000',
+        search: '',
+        history: {
+          replaceState: vi.fn(),
+        },
+      },
+      writable: true,
+    });
+
+    const { result } = renderHook(() => useAuthMessage(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current.authMessage).toBeNull();
+  });
+
+  it('should show success message for NO_TARGET_REPO warning', () => {
+    // Mock URL with success and warning parameters
+    Object.defineProperty(window, 'location', {
+      value: {
+        href: 'http://localhost:3000?success=true&warning=NO_TARGET_REPO',
+        search: '?success=true&warning=NO_TARGET_REPO',
+        history: {
+          replaceState: vi.fn(),
+        },
+      },
+      writable: true,
+    });
+
+    const { result } = renderHook(() => useAuthMessage(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current.authMessage).toEqual({
+      type: 'success',
+      message:
+        "Authentication successful! You are now logged in to GitHub. Repository wasn't starred, please try again.",
+    });
+  });
+
+  it('should show success message for STAR_FAILED warning', () => {
+    // Mock URL with success and warning parameters
+    Object.defineProperty(window, 'location', {
+      value: {
+        href: 'http://localhost:3000?success=true&warning=STAR_FAILED',
+        search: '?success=true&warning=STAR_FAILED',
+        history: {
+          replaceState: vi.fn(),
+        },
+      },
+      writable: true,
+    });
+
+    const { result } = renderHook(() => useAuthMessage(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current.authMessage).toEqual({
+      type: 'success',
+      message:
+        'Authentication successful! You are now logged in to GitHub. Repository starring failed, please try again.',
+    });
+  });
+
+  it('should show error message for authentication failure', () => {
+    // Mock URL with error parameter
+    Object.defineProperty(window, 'location', {
+      value: {
+        href: 'http://localhost:3000?error=access_denied',
+        search: '?error=access_denied',
+        history: {
+          replaceState: vi.fn(),
+        },
+      },
+      writable: true,
+    });
+
+    const { result } = renderHook(() => useAuthMessage(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current.authMessage).toEqual({
+      type: 'error',
+      message: 'Authentication failed: access_denied',
+    });
+  });
+
+  it('should clear URL parameters after setting auth message', () => {
+    const mockReplaceState = vi.fn();
+
+    // Mock window.history.replaceState directly
+    Object.defineProperty(window, 'history', {
+      value: {
+        replaceState: mockReplaceState,
+      },
+      writable: true,
+    });
+
+    Object.defineProperty(window, 'location', {
+      value: {
+        href: 'http://localhost:3000?success=true&warning=NO_TARGET_REPO',
+        search: '?success=true&warning=NO_TARGET_REPO',
+      },
+      writable: true,
+    });
+
+    renderHook(() => useAuthMessage(), {
+      wrapper: Wrapper,
+    });
+
+    // Wait for the effect to run
+    expect(mockReplaceState).toHaveBeenCalled();
+  });
+});
+
+describe('useStarredRepos', () => {
+  const mockOpenLoginModal = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('should return initial state when not authenticated', async () => {
+    const services = await getMockedServices();
+
+    await mockUnauthenticatedUser();
+    services.getSelectedRepo.mockReturnValue('');
+
+    const { result } = await renderUseStarredRepos(mockOpenLoginModal);
+
+    expect(result.current.starredRepos).toEqual(new Set());
+    expect(result.current.selectedRepo).toBe('');
+    expect(result.current.handleStarClick).toBeDefined();
+  });
+
+  it('should open login modal when user is not authenticated and star is clicked', async () => {
+    const services = await getMockedServices();
+
+    await mockUnauthenticatedUser();
+    services.getSelectedRepo.mockReturnValue('');
+    services.setSelectedRepo.mockImplementation(() => {});
+
+    const { result } = await renderUseStarredRepos(mockOpenLoginModal);
+
+    await act(async () => {
+      await result.current.handleStarClick(await createTestRepo(), false);
+    });
+
+    expect(mockOpenLoginModal).toHaveBeenCalled();
+  });
+
+  it('should not open login modal when modal is already open', async () => {
+    const services = await getMockedServices();
+
+    await mockUnauthenticatedUser();
+    services.getSelectedRepo.mockReturnValue('');
+    services.setSelectedRepo.mockImplementation(() => {});
+
+    const { result } = await renderUseStarredRepos(mockOpenLoginModal);
+
+    await act(async () => {
+      await result.current.handleStarClick(await createTestRepo(), true);
+    });
+
+    expect(mockOpenLoginModal).not.toHaveBeenCalled();
+  });
+
+  it('should star repository when user is authenticated and repo is not starred (React Query not loading)', async () => {
+    const services = await getMockedServices();
+
+    const testRepo = await createTestRepo('username', 'repo-name');
+
+    services.getAuthState.mockReturnValue({
+      isAuthenticated: true,
+      user: {
+        id: 1,
+        login: 'testuser',
+        name: 'Test User',
+        avatar_url: 'https://github.com/testuser.png',
+      },
+      token: 'test-token',
+    });
+    services.getStarredRepositories.mockResolvedValue(['username/repo-name']);
+    services.unstarRepository.mockResolvedValue(true);
+    services.getSelectedRepo.mockReturnValue('');
+
+    const { result } = await renderUseStarredRepos(mockOpenLoginModal);
+
+    await act(async () => {
+      await result.current.handleStarClick(testRepo, false);
+    });
+
+    expect(services.getStarredRepositories).toHaveBeenCalled();
+    expect(services.unstarRepository).not.toHaveBeenCalled();
+  });
+
+  it('should handle star/unstar errors gracefully', async () => {
+    const services = await getMockedServices();
+
+    const testRepo = await createTestRepo('username', 'repo-name');
+
+    services.getAuthState.mockReturnValue({
+      isAuthenticated: true,
+      user: {
+        id: 1,
+        login: 'testuser',
+        name: 'Test User',
+        avatar_url: 'https://github.com/testuser.png',
+      },
+      token: 'test-token',
+    });
+    services.getStarredRepositories.mockResolvedValue(['username/repo-name']);
+    services.unstarRepository.mockRejectedValue(new Error('API Error'));
+    services.getSelectedRepo.mockReturnValue('');
+
+    const { result } = await renderUseStarredRepos(mockOpenLoginModal);
+
+    await withConsoleErrorSpy(async () => {
+      await act(async () => {
+        await result.current.handleStarClick(testRepo, false);
+      });
+
+      expect(services.unstarRepository).toHaveBeenCalledWith(
+        'username',
+        'repo-name'
+      );
+    });
+  });
+
+  it('should return selected repo from storage', async () => {
+    const services = await getMockedServices();
+
+    await mockUnauthenticatedUser();
+    services.getSelectedRepo.mockReturnValue('facebook/react');
+
+    const { result } = await renderUseStarredRepos(mockOpenLoginModal);
+
+    expect(result.current.selectedRepo).toBe('facebook/react');
   });
 });

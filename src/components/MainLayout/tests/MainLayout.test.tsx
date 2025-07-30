@@ -6,7 +6,10 @@ import type { UseTrendingRepoReturn } from '@types';
 
 expect.extend(toHaveNoViolations);
 
-const useTrendingReposHookSpy = vi.spyOn(useTrendingReposHook, 'useTrendingRepos');
+const useTrendingReposHookSpy = vi.spyOn(
+  useTrendingReposHook,
+  'useTrendingRepos'
+);
 
 describe('MainLayout', () => {
   beforeAll(() => {

@@ -1,9 +1,23 @@
 import { render, screen } from '@tests/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { vi } from 'vitest';
 import LoginModal from '../LoginModal';
+import * as useTrendingReposHook from '@hooks/useTrendingRepos';
+
+// Mock the startAuth function to prevent navigation
+vi.mock('@services/githubAuth', () => ({
+  startAuth: vi.fn(),
+  getAuthState: vi.fn(() => ({
+    isAuthenticated: false,
+    user: null,
+    token: null,
+  })),
+}));
 
 expect.extend(toHaveNoViolations);
+
+const useStarredReposSpy = vi.spyOn(useTrendingReposHook, 'useStarredRepos');
 
 const user = userEvent.setup();
 
@@ -15,6 +29,11 @@ describe('LoginModal', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    useStarredReposSpy.mockReturnValue({
+      handleStarClick: vi.fn(),
+      starredRepos: new Set(),
+      selectedRepo: 'test-repo',
+    });
   });
 
   it('should not render when modalIsOpen is false', () => {
@@ -39,13 +58,20 @@ describe('LoginModal', () => {
   });
 
   it('should display repo name when provided', () => {
-    render(<LoginModal {...defaultProps} repoName="test-repo" />);
+    render(<LoginModal {...defaultProps} />);
 
     expect(screen.getByText('Repository:')).toBeInTheDocument();
     expect(screen.getByText('test-repo')).toBeInTheDocument();
   });
 
   it('should not display repo name when not provided', () => {
+    // Mock with no selectedRepo
+    useStarredReposSpy.mockReturnValue({
+      handleStarClick: vi.fn(),
+      starredRepos: new Set(),
+      selectedRepo: '',
+    });
+
     render(<LoginModal {...defaultProps} />);
 
     expect(screen.queryByText('Repository:')).not.toBeInTheDocument();

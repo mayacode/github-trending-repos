@@ -2,7 +2,6 @@ import { render, screen } from '@tests/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import TrendingRepoCard from '../TrendingRepoCard';
 import { repo } from '@tests/test_helper';
-import { GitHubAuthProvider } from '@contexts/GitHubAuthContext';
 
 expect.extend(toHaveNoViolations);
 
@@ -10,11 +9,7 @@ const props = { repo };
 
 describe('TrendingRepoCard', () => {
   it('should render', () => {
-    render(
-      <GitHubAuthProvider>
-        <TrendingRepoCard {...props} />
-      </GitHubAuthProvider>
-    );
+    render(<TrendingRepoCard {...props} />);
 
     expect(screen.getByText(props.repo.description)).toBeInTheDocument();
     expect(screen.getByText(props.repo.language)).toBeInTheDocument();
@@ -29,11 +24,9 @@ describe('TrendingRepoCard', () => {
 
   it('should meet formal accessibility requirements', async () => {
     const { container } = render(
-      <GitHubAuthProvider>
-        <ul>
-          <TrendingRepoCard {...props} />
-        </ul>
-      </GitHubAuthProvider>
+      <ul>
+        <TrendingRepoCard {...props} />
+      </ul>
     );
 
     const results = await axe(container);
