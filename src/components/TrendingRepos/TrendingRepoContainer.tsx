@@ -1,17 +1,24 @@
-import { useTrendingRepos } from "../../hooks/useTrendingRepos";
-import FilterBar from "../FilterBar/FilterBar";
-import TrendingRepoList from "./TrendingRepoList";
+import { useAuthMessage, useTrendingRepos } from '@hooks/useTrendingRepos';
+import FilterBar from '@components/FilterBar/FilterBar';
+import TrendingRepoList from './TrendingRepoList';
 
 export default function TrendingReposContainer() {
   const { error, pending, repoList, ...filterBarProps } = useTrendingRepos();
+  const { authMessage } = useAuthMessage();
 
   return (
     <div className="px-6">
       <FilterBar {...filterBarProps} />
       <main className="px-6 pt-0 py-8 relative">
-        {error && (
-          <div className="text-center text-red-600 dark:text-red-400">
-            {error}
+        {(error || authMessage) && (
+          <div
+            className={`text-center ${
+              authMessage?.type === 'success'
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-red-600 dark:text-red-400'
+            }`}
+          >
+            {authMessage?.message || error}
           </div>
         )}
         <div className="relative">

@@ -1,5 +1,5 @@
-import type { UseTrendingRepoReturn } from "../../types";
-import TrendingRepoCard from "./TrendingRepoCard";
+import type { UseTrendingRepoReturn } from '@types';
+import TrendingRepoCard from './TrendingRepoCard';
 
 export type TrendingRepoListProps = Pick<UseTrendingRepoReturn, 'repoList'>;
 

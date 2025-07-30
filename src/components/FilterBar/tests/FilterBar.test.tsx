@@ -1,5 +1,5 @@
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@tests/test-utils';
 import userEvent from '@testing-library/user-event';
 import FilterBar from '../FilterBar';
 
@@ -27,7 +27,9 @@ describe('FilterBar', () => {
 
     expect(screen.getByLabelText('Language:')).toBeInTheDocument();
     expect(screen.getByLabelText('Show:')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Search keywords...')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Search keywords...')
+    ).toBeInTheDocument();
     expect(screen.getByText('1 to 20')).toBeInTheDocument();
   });
 
@@ -40,8 +42,12 @@ describe('FilterBar', () => {
     expect(mockProps.changeLanguage).toHaveBeenCalledTimes(0);
 
     expect(screen.getByRole('option', { name: 'All' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'JavaScript' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'TypeScript' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: 'JavaScript' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: 'TypeScript' })
+    ).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Python' })).toBeInTheDocument();
 
     await userEvent.selectOptions(languageSelect, 'JavaScript');
@@ -60,11 +66,21 @@ describe('FilterBar', () => {
     expect(perPageSelect).toHaveValue('10');
     expect(mockProps.changePerPage).toHaveBeenCalledTimes(0);
 
-    expect(screen.getByRole('option', { name: '10 repos' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: '20 repos' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: '30 repos' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: '50 repos' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: '100 repos' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: '10 repos' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: '20 repos' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: '30 repos' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: '50 repos' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: '100 repos' })
+    ).toBeInTheDocument();
 
     await userEvent.selectOptions(perPageSelect, '30');
 

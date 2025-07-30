@@ -1,16 +1,19 @@
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { render, screen } from "@testing-library/react";
-import MainLayout from "../MainLayout";
-import * as useTrendingReposHook from '../../../hooks/useTrendingRepos';
-import type { UseTrendingRepoReturn } from '../../../types';
+import { render, screen } from '@tests/test-utils';
+import MainLayout from '../MainLayout';
+import * as useTrendingReposHook from '@hooks/useTrendingRepos';
+import type { UseTrendingRepoReturn } from '@types';
 
 expect.extend(toHaveNoViolations);
 
-const useProductsSpy = vi.spyOn(useTrendingReposHook, 'useTrendingRepos');
+const useTrendingReposHookSpy = vi.spyOn(
+  useTrendingReposHook,
+  'useTrendingRepos'
+);
 
 describe('MainLayout', () => {
   beforeAll(() => {
-    useProductsSpy.mockReturnValue({
+    useTrendingReposHookSpy.mockReturnValue({
       availableLanguages: ['JavaScript', 'TypeScript', 'Python'],
       changeLanguage: vi.fn(),
       changePerPage: vi.fn(),
@@ -22,7 +25,7 @@ describe('MainLayout', () => {
       perPage: 10,
       repoList: [],
       search: '',
-      start: '1'
+      start: '1',
     } as UseTrendingRepoReturn);
   });
 
@@ -33,8 +36,12 @@ describe('MainLayout', () => {
   it('should render', () => {
     render(<MainLayout />);
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('GitHub Trending Repositories (Last Week)');
-    expect(screen.getByRole('button', { name: /switch to dark mode/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'GitHub Trending Repositories (Last Week)'
+    );
+    expect(
+      screen.getByRole('button', { name: /switch to dark mode/i })
+    ).toBeInTheDocument();
     expect(screen.getAllByRole('combobox')).toHaveLength(2);
     expect(screen.getByRole('textbox')).toBeInTheDocument();
     expect(screen.getByText('1 to 20')).toBeInTheDocument();

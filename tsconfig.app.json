@@ -23,8 +23,27 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
+    /* Path Aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@assets/*": ["src/assets/*"],
+      "@helpers/*": ["src/helpers/*"],
+      "@types": ["src/types"],
+      "@tests/*": ["tests/*"],
+      "@services/*": ["src/services/*"],
+      "@constants": ["src/constants"]
+    },
+
     /* Testing */
-    "types": ["vitest/importMeta", "vitest/globals", "@testing-library/jest-dom", "jest-axe"]
+    "types": [
+      "vitest/importMeta",
+      "vitest/globals",
+      "@testing-library/jest-dom",
+      "jest-axe"
+    ]
   },
   "include": ["src", "tests/test_helper.ts"]
 }
