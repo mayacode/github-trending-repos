@@ -32,3 +32,22 @@ export interface UseTrendingRepoReturn {
   repoList: Repo[];
   start: string;
 }
+
+export interface GitHubUser {
+  id: number;
+  login: string;
+  name: string | null;
+  avatar_url: string;
+}
+
+export interface GitHubAuthState {
+  isAuthenticated: boolean;
+  user: GitHubUser | null;
+  token: string | null;
+}
+
+export interface LoginModalReturn {
+  modalIsOpen: boolean;
+  openLoginModal: () => void;
+  closeLoginModal: () => void;
+}

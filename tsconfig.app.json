@@ -31,9 +31,10 @@
       "@hooks/*": ["src/hooks/*"],
       "@assets/*": ["src/assets/*"],
       "@helpers/*": ["src/helpers/*"],
-      "@contexts/*": ["src/contexts/*"],
       "@types": ["src/types"],
-      "@tests/*": ["tests/*"]
+      "@tests/*": ["tests/*"],
+      "@services/*": ["src/services/*"],
+      "@constants": ["src/constants"]
     },
 
     /* Testing */

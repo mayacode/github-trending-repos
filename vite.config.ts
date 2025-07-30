@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
+import fs from 'fs';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -26,9 +27,30 @@ export default defineConfig({
       '@hooks': path.resolve(__dirname, './src/hooks'),
       '@assets': path.resolve(__dirname, './src/assets'),
       '@helpers': path.resolve(__dirname, './src/helpers'),
-      '@contexts': path.resolve(__dirname, './src/contexts'),
       '@types': path.resolve(__dirname, './src/types'),
       '@tests': path.resolve(__dirname, './tests'),
+      '@services': path.resolve(__dirname, './src/services'),
+      '@constants': path.resolve(__dirname, './src/constants'),
+    },
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: (() => {
+          try {
+            const portFile = path.join(__dirname, '.dev-server-port');
+            if (fs.existsSync(portFile)) {
+              const port = fs.readFileSync(portFile, 'utf8').trim();
+              return `http://localhost:${port}`;
+            }
+          } catch (error) {
+            console.warn('Could not read dev server port, using default');
+          }
+          return 'http://localhost:3001';
+        })(),
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   test: {
@@ -50,7 +72,7 @@ export default defineConfig({
         '**/index.html',
         '**/*.d.ts',
         '**/vite-env.d.ts',
-        '**/main.tsx',
+        '**/**/main.tsx',
       ],
     },
   },
