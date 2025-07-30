@@ -1,69 +1,87 @@
-# React + TypeScript + Vite
+# GitHub Trending Repositories
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React app that shows trending GitHub repositories from the last week. Users can star/unstar repositories and filter by language.
 
-Currently, two official plugins are available:
+## How to Run
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Development
 
-## Expanding the ESLint configuration
+1. Install dependencies:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+   ```bash
+   yarn install --frozen-lockfile
+   ```
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. Start the development server:
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+   ```bash
+   yarn dev:full
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+3. Open your browser and go to `http://localhost:5173`
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
+## Available Scripts
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+- `yarn dev` - Start development server
+- `yarn dev:server` - Start backend server only
+- `yarn dev:full` - Start both frontend and backend servers
+- `yarn build` - Build for production
+- `yarn preview` - Preview production build
+- `yarn test` - Run tests
+- `yarn coverage` - Run tests with coverage report
+- `yarn lint` - Check code for errors
+- `yarn format` - Format code with Prettier
+- `yarn format:check` - Check if code is formatted correctly
+
+## Key Decisions Made
+
+### Testing Strategy
+
+- Used **Vitest** for fast testing
+- **React Testing Library** for component testing
+- **Jest Axe** for accessibility testing
+- Created helper functions in `test-utils.tsx` to reduce code duplication
+- Used `withConsoleErrorSpy` helper for error testing
+- Used `getMockedServices` helper for service mocking
+
+### State Management
+
+- **React Query** for server state (trending repos, starred repos)
+- **React hooks** for local state (filters, UI state)
+- **Optimistic updates** for star/unstar actions
+
+### UI/UX
+
+- **Tailwind CSS** for styling
+- **Dark mode** support
+- **Responsive design** for mobile and desktop
+- **Loading states** and error handling
+- **Accessibility** features (ARIA labels, keyboard navigation)
+
+### Code Organization
+
+- **Component-based architecture** with clear separation of responsibilities
+- **Custom hooks** for reusable logic
+- **TypeScript** for type safety
+- **Path aliases** for clean imports
+- **ESLint + Prettier** for code quality
+
+### GitHub Integration
+
+- **OAuth flow** for authentication
+- **Octokit** for GitHub API calls
+- **Session storage** for auth state
+- **Error handling** for API failures
+
+### Performance
+
+- **Debounced search** to reduce API calls
+- **React Query caching** for data
+- **Code splitting** with Vite
+- **Optimistic updates** for better UX
+- vitest for fast tests
+
+### Vercel deployment URL
+
+- TBD
