@@ -12,13 +12,18 @@ A React app that shows trending GitHub repositories from the last week. Users ca
    yarn install --frozen-lockfile
    ```
 
-2. Start the development server:
+2. create `.env.local` file and add:
+    - `VITE_GITHUB_CLIENT_ID` that is your github oauth client id
+    - `VITE_GITHUB_CLIENT_SECRET` that is your github oauth secret
+They are to be created in github Developer Settings in github oauth app
+
+3. Start the development server:
 
    ```bash
    yarn dev:full
    ```
 
-3. Open your browser and go to `http://localhost:5173`
+4. Open your browser and go to `http://localhost:5173`
 
 
 ## Available Scripts
